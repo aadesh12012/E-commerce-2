@@ -174,8 +174,11 @@ const sellerregister = async (req, res) => {
             }
         );
 
+        const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token", token, {
-            httpOnly: true
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax"
         });
 
         res.status(201).json({
@@ -232,8 +235,11 @@ const sellerlogin = async (req, res) => {
             }
         );
 
+        const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token", token, {
-            httpOnly: true
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax"
         });
 
         res.json({
