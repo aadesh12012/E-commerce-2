@@ -37,14 +37,24 @@ function getTransporter() {
     }
 
     if (!transporter) {
+        const host = getEmailHost();
+        // Gmail: use port 465 + SSL by default (port 587 is often blocked on cloud platforms)
+        const isGmail = host === "smtp.gmail.com";
+        const port = Number(process.env.EMAIL_PORT) || (isGmail ? 465 : 587);
+        const secure = process.env.EMAIL_SECURE !== undefined
+            ? process.env.EMAIL_SECURE === "true"
+            : isGmail ? true : false;
+
         transporter = nodemailer.createTransport({
-            host: getEmailHost(),
-            port: Number(process.env.EMAIL_PORT) || 587,
-            secure: process.env.EMAIL_SECURE === "true",
+            host,
+            port,
+            secure,
             auth: {
                 user: getEmailUser(),
                 pass: getEmailPass(),
             },
+            connectionTimeout: 10000,  // 10 seconds
+            socketTimeout: 15000,      // 15 seconds
         });
     }
 
