@@ -139,6 +139,64 @@ The application will run on:
 4. Monitor orders and earnings
 5. Update payout details for payments
 
+## Deployment
+
+### Prerequisites for Deployment
+- Ensure all `.env` files are properly configured (see `.env.example` files)
+- MongoDB instance running (Atlas or self-hosted)
+- Node.js environment on deployment server
+- Frontend build artifacts
+
+### Backend Deployment
+
+1. **Set Environment Variables**
+   - Copy `.env.example` to `.env`
+   - Update all values for production
+
+2. **Install Production Dependencies**
+```bash
+cd backend
+npm install --production
+```
+
+3. **Start Production Server**
+```bash
+NODE_ENV=production npm start
+```
+
+### Frontend Deployment
+
+1. **Build for Production**
+```bash
+cd client
+npm run build
+```
+
+2. **Deploy Built Files**
+   - Upload the contents of `dist/` folder to your hosting provider
+   - Configure your web server to serve `index.html` for all routes
+
+### Environment Configuration
+
+**Backend (.env):**
+- `NODE_ENV=production`
+- `PORT=3000` (or your server port)
+- `MONGO_URL=` (production MongoDB URI)
+- `JWT_SECRET=` (strong secret key)
+- `FRONTEND_URLS=` (comma-separated frontend URLs)
+- `KEY_ID=` (Razorpay API key)
+- `KEY_SECRET=` (Razorpay API secret)
+- Email configuration variables
+
+**Frontend (.env):**
+- `VITE_API_BASE_URL=` (production backend URL)
+- `VITE_ENVIRONMENT=production`
+
+### Hosting Options
+- **Backend:** Heroku, Railway, AWS EC2, DigitalOcean, Render
+- **Frontend:** Vercel, Netlify, AWS S3 + CloudFront, GitHub Pages
+- **Database:** MongoDB Atlas, AWS DocumentDB
+
 ## Features Implemented
 
 ✅ User authentication with JWT

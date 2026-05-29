@@ -11,8 +11,12 @@ const { verifyEmailConnection } = require("./config/mailer");
 app.use(cookieParser());
 app.use(express.json());
 
+const allowedOrigins = process.env.FRONTEND_URLS 
+    ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+    : ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    origin: allowedOrigins,
     credentials: true
 }));
 
@@ -32,7 +36,10 @@ app.use("/", sellerRouter);
 app.use("/", cartRouter);
 
 
-app.listen(3000, () => {
-    console.log("Server started on port 3000");
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT} in ${NODE_ENV} mode`);
     verifyEmailConnection();
 });
