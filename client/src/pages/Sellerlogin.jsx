@@ -21,7 +21,7 @@ function SellerLogin() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/sellerlogin",
+        "https://e-commerce-2-backend-omws.onrender.com/sellerlogin",
         { email, password },
         { withCredentials: true }
       );
@@ -95,3 +95,4 @@ function SellerLogin() {
 }
 
 export default SellerLogin;
+

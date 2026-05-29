@@ -21,7 +21,7 @@ function Home() {
       setLoading(true);
       setError(null);
 
-      const response = await axios.get("http://localhost:3000/products", {
+      const response = await axios.get("https://e-commerce-2-backend-omws.onrender.com/products", {
         timeout: 5000,
       });
 
@@ -53,7 +53,7 @@ function Home() {
       }
 
       await axios.post(
-        "http://localhost:3000/addtocart",
+        "https://e-commerce-2-backend-omws.onrender.com/addtocart",
         { userId: user._id, productId },
         { withCredentials: true }
       );
@@ -137,3 +137,4 @@ function Home() {
 }
 
 export default Home;
+

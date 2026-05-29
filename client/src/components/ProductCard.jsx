@@ -9,7 +9,7 @@ export default function ProductCard({ product, onAddToCart }) {
           src={
             product.image?.startsWith("http")
               ? product.image
-              : `http://localhost:3000/uploads/${product.image}`
+              : `https://e-commerce-2-backend-omws.onrender.com/uploads/${product.image}`
           }
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
@@ -45,3 +45,4 @@ export default function ProductCard({ product, onAddToCart }) {
     </article>
   );
 }
+

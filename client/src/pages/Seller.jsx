@@ -431,7 +431,7 @@ function Seller() {
                       src={
                         product.image?.startsWith("http")
                           ? product.image
-                          : `http://localhost:3000/uploads/${product.image}`
+                          : `https://e-commerce-2-backend-omws.onrender.com/uploads/${product.image}`
                       }
                       alt={product.name}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
@@ -643,3 +643,4 @@ function Seller() {
 }
 
 export default Seller;
+

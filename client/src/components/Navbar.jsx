@@ -92,3 +92,4 @@ function Navbar({ searchTerm = "", setSearchTerm = () => {} }) {
 }
 
 export default Navbar;
+

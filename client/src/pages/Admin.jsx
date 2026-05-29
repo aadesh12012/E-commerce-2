@@ -43,7 +43,7 @@ function Admin() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3000/admin/users", {
+      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/users", {
         withCredentials: true,
       });
       setUsers(res.data);
@@ -56,7 +56,7 @@ function Admin() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3000/admin/products", {
+      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/products", {
         withCredentials: true,
       });
       setProducts(res.data);
@@ -69,7 +69,7 @@ function Admin() {
   const fetchSellers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3000/admin/sellers", {
+      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/sellers", {
         withCredentials: true,
       });
       setSellers(res.data);
@@ -82,7 +82,7 @@ function Admin() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3000/admin/orders", {
+      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/orders", {
         withCredentials: true,
       });
       setOrders(res.data);
@@ -95,7 +95,7 @@ function Admin() {
   const deleteUser = async (id) => {
     if (!window.confirm("Delete this user?")) return;
     try {
-      await axios.delete(`http://localhost:3000/admin/user/${id}`, {
+      await axios.delete(`https://e-commerce-2-backend-omws.onrender.com/admin/user/${id}`, {
         withCredentials: true,
       });
       fetchUsers();
@@ -107,7 +107,7 @@ function Admin() {
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`http://localhost:3000/admin/product/${id}`, {
+      await axios.delete(`https://e-commerce-2-backend-omws.onrender.com/admin/product/${id}`, {
         withCredentials: true,
       });
       fetchProducts();
@@ -125,7 +125,7 @@ function Admin() {
     if (!window.confirm(`Mark ₹${amount} as paid to ${sellerName}?`)) return;
     try {
       const res = await axios.post(
-        "http://localhost:3000/admin/payout-seller",
+        "https://e-commerce-2-backend-omws.onrender.com/admin/payout-seller",
         { sellerId, amount: Number(amount) },
         { withCredentials: true }
       );
@@ -392,3 +392,4 @@ function Admin() {
 }
 
 export default Admin;
+

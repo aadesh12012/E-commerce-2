@@ -26,7 +26,7 @@ function Cart() {
       }
       const user = JSON.parse(userString);
       const res = await axios.get(
-        `http://localhost:3000/cart-total/${user._id}`,
+        `https://e-commerce-2-backend-omws.onrender.com/cart-total/${user._id}`,
         { withCredentials: true }
       );
       setCart(res.data.cart || []);
@@ -44,7 +44,7 @@ function Cart() {
       if (!userString) return;
       const user = JSON.parse(userString);
       await axios.post(
-        "http://localhost:3000/removeitem",
+        "https://e-commerce-2-backend-omws.onrender.com/removeitem",
         { userId: user._id, cartItemId },
         { withCredentials: true }
       );
@@ -104,7 +104,7 @@ function Cart() {
                       src={
                         item.productId.image?.startsWith("http")
                           ? item.productId.image
-                          : `http://localhost:3000/uploads/${item.productId.image}`
+                          : `https://e-commerce-2-backend-omws.onrender.com/uploads/${item.productId.image}`
                       }
                       alt={item.productId.name}
                       className="h-full w-full object-cover"
@@ -201,3 +201,4 @@ function Cart() {
 }
 
 export default Cart;
+

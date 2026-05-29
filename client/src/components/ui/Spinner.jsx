@@ -14,3 +14,4 @@ export default function Spinner({ label = "Loading..." }) {
     </div>
   );
 }
+

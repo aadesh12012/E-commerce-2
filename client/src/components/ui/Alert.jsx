@@ -16,3 +16,4 @@ export default function Alert({ children, variant = "error", className = "" }) {
     </div>
   );
 }
+

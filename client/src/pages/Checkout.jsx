@@ -38,7 +38,7 @@ function Checkout() {
       setName(user.name || "");
 
       const res = await axios.get(
-        `http://localhost:3000/cart-total/${user._id}`,
+        `https://e-commerce-2-backend-omws.onrender.com/cart-total/${user._id}`,
         { withCredentials: true }
       );
 
@@ -67,7 +67,7 @@ function Checkout() {
       const user = JSON.parse(userString);
 
       const orderRes = await axios.post(
-        "http://localhost:3000/create-order",
+        "https://e-commerce-2-backend-omws.onrender.com/create-order",
         { amount: total },
         { withCredentials: true }
       );
@@ -84,7 +84,7 @@ function Checkout() {
         handler: async function (response) {
           try {
             const verifyRes = await axios.post(
-              "http://localhost:3000/verify-payment",
+              "https://e-commerce-2-backend-omws.onrender.com/verify-payment",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -248,3 +248,4 @@ function Checkout() {
 }
 
 export default Checkout;
+
