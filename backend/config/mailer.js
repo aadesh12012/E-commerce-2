@@ -1,59 +1,54 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-let resend = null;
+let transporter = null;
 
 /**
- * Returns true when RESEND_API_KEY is set and EMAIL_ENABLED is not false.
+ * Returns true when EMAIL and EMAIL_PASS are set
  */
 function isEmailConfigured() {
-    // If EMAIL_ENABLED is explicitly set to false, disable email
-    if (process.env.EMAIL_ENABLED === "false") {
-        return false;
-    }
-    
-    return Boolean(process.env.RESEND_API_KEY);
+    return Boolean(process.env.EMAIL && process.env.EMAIL_PASS);
 }
 
 /**
- * Get Resend instance (singleton).
+ * Get Nodemailer transporter (singleton)
  */
 function getTransporter() {
     if (!isEmailConfigured()) {
         throw new Error(
-            "Email is not configured. Set RESEND_API_KEY in .env"
+            "Email is not configured. Set EMAIL and EMAIL_PASS in .env"
         );
     }
 
-    if (!resend) {
-        resend = new Resend(process.env.RESEND_API_KEY);
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASS, // Gmail app password
+            },
+        });
     }
 
-    return resend;
+    return transporter;
 }
 
 /**
- * Verifies Resend connection on server start (logs only; does not crash app).
+ * Verify SMTP connection on server start
  */
 async function verifyEmailConnection() {
-    // If EMAIL_ENABLED is set to false, skip email verification
-    if (process.env.EMAIL_ENABLED === "false") {
-        console.warn("Email: disabled via EMAIL_ENABLED=false");
-        return false;
-    }
-
     if (!isEmailConfigured()) {
         console.warn(
-            "Email: skipped — add RESEND_API_KEY to .env to enable"
+            "Email: skipped — add EMAIL and EMAIL_PASS to .env to enable"
         );
         return false;
     }
 
     try {
-        // Simple verification by checking if API key is set
-        console.log("✅ Email: Resend API configured");
+        await getTransporter().verify();
+        console.log("✅ Email: Gmail SMTP connection verified");
         return true;
     } catch (err) {
-        console.warn("Email: Resend verification failed —", err.message);
+        console.warn("Email: SMTP verification failed —", err.message);
         return false;
     }
 }

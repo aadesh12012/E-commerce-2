@@ -74,29 +74,36 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
         { upsert: true, new: true }
     );
 
-    // Log OTP to console for testing/debugging (especially when email is disabled)
-    console.log(`\n${'='.repeat(60)}`);
-    console.log(`📧 OTP for ${normalizedEmail}:`);
-    console.log(`🔐 OTP: ${otp}`);
-    console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
-    console.log(`${'='.repeat(60)}\n`);
-
-    // Try to send email if configured
+    // Send OTP email via Nodemailer
     if (isEmailConfigured()) {
         const mailResult = await sendOtpEmail(normalizedEmail, otp);
         if (!mailResult.success) {
-            console.warn("⚠️ OTP email failed:", mailResult.error);
-            // Don't fail - OTP is still valid and logged to console
+            console.error("❌ OTP email failed:", mailResult.error);
+            return {
+                status: 500,
+                body: {
+                    success: false,
+                    message: "Failed to send OTP email. Please check your email configuration.",
+                },
+            };
         }
+        console.log(`✅ OTP email sent to ${normalizedEmail}`);
     } else {
-        console.warn("⚠️ Email not configured - OTP shown in logs above");
+        console.warn("⚠️ Email not configured");
+        return {
+            status: 500,
+            body: {
+                success: false,
+                message: "Email service is not configured. Please contact support.",
+            },
+        };
     }
 
     return {
         status: 200,
         body: {
             success: true,
-            message: "OTP sent to your email. It expires in 10 minutes.",
+            message: `OTP sent to ${normalizedEmail}. It expires in ${OTP_EXPIRY_MINUTES} minutes.`,
         },
     };
 }
