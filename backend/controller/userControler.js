@@ -70,7 +70,7 @@ const createUser = async (req, res) => {
         let existingUser = await UserModel.findOne({ email: normalizedEmail });
 
         if (existingUser) {
-            return res.json({
+            return res.status(400).json({
                 success: false,
                 message: "User Already Exists",
             });
@@ -87,34 +87,53 @@ const createUser = async (req, res) => {
 
         await clearRegistrationOtp(normalizedEmail, PURPOSE.USER_REGISTER);
 
+        // Ensure JWT_SECRET is set
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            console.error("CRITICAL: JWT_SECRET is not set in environment!");
+            return res.status(500).json({
+                success: false,
+                message: "Server configuration error",
+            });
+        }
+
         let token = jwt.sign(
             {
                 email: normalizedEmail,
                 userid: user._id,
                 role: user.role,
             },
-            process.env.JWT_SECRET || "nahibatauga"
+            jwtSecret,
+            { expiresIn: "7d" }  // Add expiration for security
         );
 
         const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token", token, {
             httpOnly: true,
             secure: isProduction,
-            sameSite: isProduction ? "none" : "lax"
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
         });
 
         sendWelcomeEmail(normalizedEmail, name).catch((err) =>
             console.warn("Welcome email failed:", err.message)
         );
 
-        res.json({
+        console.log(`✅ User registered successfully: ${normalizedEmail}`);
+
+        res.status(201).json({
             success: true,
             message:
                 "Account verified and created successfully. Check your email for a welcome message.",
-            user,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
         });
     } catch (err) {
-        console.log(err);
+        console.error("Registration error:", err);
         res.status(500).json({
             success: false,
             message: err.message,
@@ -126,21 +145,40 @@ const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required",
+            });
+        }
+
         const user = await UserModel.findOne({ email: normalizeEmail(email) });
 
         if (!user) {
-            return res.json({
+            console.warn(`Login attempt for non-existent user: ${email}`);
+            return res.status(401).json({
                 success: false,
-                message: "User not found",
+                message: "Invalid email or password",
             });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.json({
+            console.warn(`Failed login attempt for user: ${email}`);
+            return res.status(401).json({
                 success: false,
-                message: "Invalid credentials",
+                message: "Invalid email or password",
+            });
+        }
+
+        // Ensure JWT_SECRET is set
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            console.error("CRITICAL: JWT_SECRET is not set in environment!");
+            return res.status(500).json({
+                success: false,
+                message: "Server configuration error",
             });
         }
 
@@ -150,23 +188,33 @@ const loginUser = async (req, res) => {
                 userid: user._id,
                 role: user.role,
             },
-            process.env.JWT_SECRET || "nahibatauga"
+            jwtSecret,
+            { expiresIn: "7d" }  // Add expiration for security
         );
 
         const isProduction = process.env.NODE_ENV === "production";
+        
         res.cookie("token", token, {
             httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "none" : "lax"
+            secure: isProduction,      // Only send over HTTPS in production
+            sameSite: isProduction ? "none" : "lax",  // Cross-origin safe in production
+            maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
         });
 
-        return res.json({
+        console.log(`✅ User logged in successfully: ${user.email}`);
+
+        return res.status(200).json({
             success: true,
             message: "Login successful",
-            user,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
         });
     } catch (err) {
-        console.log(err);
+        console.error("Login error:", err);
         return res.status(500).json({
             success: false,
             message: err.message,
