@@ -4,6 +4,14 @@ const Order = require("../models/order");
 const User = require("../models/User");
 const Product = require("../models/product");
 
+// Validate Razorpay credentials
+if (!process.env.KEY_ID || process.env.KEY_ID === "rzp_test_xxxxxxxxx") {
+    console.warn("⚠️ WARNING: Razorpay KEY_ID is not set or using placeholder value!");
+}
+if (!process.env.KEY_SECRET || process.env.KEY_SECRET === "xxxxxxxxxxxxx") {
+    console.warn("⚠️ WARNING: Razorpay KEY_SECRET is not set or using placeholder value!");
+}
+
 const razorpay = new Razorpay({
     key_id: process.env.KEY_ID || "rzp_test_xxxxxxxxx",
     key_secret: process.env.KEY_SECRET || "xxxxxxxxxxxxx"
@@ -11,7 +19,23 @@ const razorpay = new Razorpay({
 
 const createOrder = async (req, res) => {
     try {
+        // Check if API keys are configured
+        if (!process.env.KEY_ID || !process.env.KEY_SECRET) {
+            return res.status(500).json({
+                success: false,
+                message: "Razorpay API keys are not configured. Please add KEY_ID and KEY_SECRET to .env file."
+            });
+        }
+
         const { amount } = req.body;
+        
+        if (!amount || amount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid amount provided"
+            });
+        }
+
         const options = {
             amount: Math.round(amount * 100), // Razorpay accepts in paise
             currency: "INR"
@@ -19,9 +43,11 @@ const createOrder = async (req, res) => {
         const order = await razorpay.orders.create(options);
         res.status(200).json(order);
     } catch (error) {
-        console.log(error);
+        console.error("Error creating Razorpay order:", error);
         res.status(500).json({
-            message: "Failed to create order"
+            success: false,
+            message: "Failed to create order",
+            error: error.message
         });
     }
 };

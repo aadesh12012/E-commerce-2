@@ -4,7 +4,7 @@ const { welcomeEmailTemplate } = require("../templates/welcomeEmail");
 const { otpEmailTemplate } = require("../templates/otpEmail");
 
 /**
- * Sends an email. Skips silently when SMTP is not configured.
+ * Sends an email via Resend. Skips silently when not configured.
  * Never throws — callers can await without breaking main flows.
  */
 async function sendEmail({ to, subject, html, text }) {
@@ -19,21 +19,21 @@ async function sendEmail({ to, subject, html, text }) {
     }
 
     try {
-        const transporter = getTransporter();
-        const sender = process.env.EMAIL_USER || process.env.EMAIL;
-        const from =
-            process.env.EMAIL_FROM ||
-            `"${process.env.APP_NAME || "Shop"}" <${sender}>`;
+        const resend = getTransporter();
+        const from = process.env.EMAIL_FROM || "onboarding@resend.dev";
 
-        const info = await transporter.sendMail({
+        const response = await resend.emails.send({
             from,
             to,
             subject,
             html,
-            text: text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
         });
 
-        return { success: true, messageId: info.messageId };
+        if (response.error) {
+            throw new Error(response.error.message);
+        }
+
+        return { success: true, messageId: response.data?.id };
     } catch (err) {
         console.error("Email send failed:", err.message);
         return { success: false, error: err.message };
