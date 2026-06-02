@@ -38,10 +38,10 @@ const createUser = async (req, res) => {
     try {
         let { name, email, password, otp, role } = req.body;
 
-        if (!name || !email || !password || !otp) {
+        if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Name, email, password, and OTP are required",
+                message: "Name, email, and password are required",
             });
         }
 
@@ -52,20 +52,24 @@ const createUser = async (req, res) => {
             });
         }
 
-        const otpCheck = await verifyRegistrationOtp(
-            email,
-            otp,
-            PURPOSE.USER_REGISTER
-        );
+        // OTP verification is optional (if OTP is provided, verify it)
+        let normalizedEmail = normalizeEmail(email);
+        
+        if (otp) {
+            const otpCheck = await verifyRegistrationOtp(
+                email,
+                otp,
+                PURPOSE.USER_REGISTER
+            );
 
-        if (!otpCheck.valid) {
-            return res.status(400).json({
-                success: false,
-                message: otpCheck.message,
-            });
+            if (!otpCheck.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: otpCheck.message,
+                });
+            }
+            normalizedEmail = otpCheck.email;
         }
-
-        const normalizedEmail = otpCheck.email;
 
         let existingUser = await UserModel.findOne({ email: normalizedEmail });
 
@@ -85,7 +89,10 @@ const createUser = async (req, res) => {
             role: role || "user",
         });
 
-        await clearRegistrationOtp(normalizedEmail, PURPOSE.USER_REGISTER);
+        // Clear OTP if it was used
+        if (otp) {
+            await clearRegistrationOtp(normalizedEmail, PURPOSE.USER_REGISTER);
+        }
 
         // Ensure JWT_SECRET is set
         const jwtSecret = process.env.JWT_SECRET;
@@ -124,7 +131,7 @@ const createUser = async (req, res) => {
         res.status(201).json({
             success: true,
             message:
-                "Account verified and created successfully. Check your email for a welcome message.",
+                "Account created successfully. Check your email for a welcome message.",
             user: {
                 _id: user._id,
                 name: user.name,
