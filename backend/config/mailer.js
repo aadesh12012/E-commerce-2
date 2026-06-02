@@ -20,9 +20,14 @@ function getEmailPass() {
 }
 
 /**
- * Returns true when minimum SMTP env vars are set.
+ * Returns true when minimum SMTP env vars are set and EMAIL_ENABLED is not false.
  */
 function isEmailConfigured() {
+    // If EMAIL_ENABLED is explicitly set to false, disable email
+    if (process.env.EMAIL_ENABLED === "false") {
+        return false;
+    }
+    
     return Boolean(getEmailHost() && getEmailUser() && getEmailPass());
 }
 
@@ -65,6 +70,12 @@ function getTransporter() {
  * Verifies SMTP connection on server start (logs only; does not crash app).
  */
 async function verifyEmailConnection() {
+    // If EMAIL_ENABLED is set to false, skip email verification
+    if (process.env.EMAIL_ENABLED === "false") {
+        console.warn("Email: disabled via EMAIL_ENABLED=false");
+        return false;
+    }
+
     if (!isEmailConfigured()) {
         console.warn(
             "Email: skipped — add EMAIL_HOST, EMAIL_USER, EMAIL_PASS to .env to enable"
@@ -74,7 +85,7 @@ async function verifyEmailConnection() {
 
     try {
         await getTransporter().verify();
-        console.log("Email: SMTP connection verified");
+        console.log("✅ Email: SMTP connection verified");
         return true;
     } catch (err) {
         console.warn("Email: SMTP verification failed —", err.message);
