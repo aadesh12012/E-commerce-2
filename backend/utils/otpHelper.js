@@ -78,25 +78,17 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
     if (isEmailConfigured()) {
         const mailResult = await sendOtpEmail(normalizedEmail, otp);
         if (!mailResult.success) {
-            console.error("❌ OTP email failed:", mailResult.error);
-            return {
-                status: 500,
-                body: {
-                    success: false,
-                    message: "Failed to send OTP email. Please check your email configuration.",
-                },
-            };
+            console.warn("⚠️ OTP email failed:", mailResult.error);
+            // Log OTP to console for testing (especially on Render where Gmail might be blocked)
+            console.log(`\n${'='.repeat(60)}`);
+            console.log(`📧 OTP for ${normalizedEmail}:`);
+            console.log(`🔐 OTP: ${otp}`);
+            console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
+            console.log(`${'='.repeat(60)}\n`);
+            // Don't fail - allow registration to continue
         }
-        console.log(`✅ OTP email sent to ${normalizedEmail}`);
     } else {
         console.warn("⚠️ Email not configured");
-        return {
-            status: 500,
-            body: {
-                success: false,
-                message: "Email service is not configured. Please contact support.",
-            },
-        };
     }
 
     return {
