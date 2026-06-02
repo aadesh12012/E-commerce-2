@@ -71,7 +71,7 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
     await OtpModel.findOneAndUpdate(
         { email: normalizedEmail, purpose },
         { otpHash, expiresAt, purpose },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
     );
 
     // Send OTP email via Nodemailer

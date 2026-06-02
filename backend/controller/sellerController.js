@@ -270,7 +270,7 @@ const savePayoutDetails = async (req, res) => {
                 ifscCode,
                 accountHolderName
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!seller) {
