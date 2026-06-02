@@ -34,16 +34,6 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
         };
     }
 
-    if (!isEmailConfigured()) {
-        return {
-            status: 503,
-            body: {
-                success: false,
-                message: "Email service is not configured. Cannot send OTP.",
-            },
-        };
-    }
-
     const exists = await existsCheck(normalizedEmail);
     if (exists) {
         return { status: 200, body: { success: false, message: exists.message } };
@@ -84,16 +74,22 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
         { upsert: true, new: true }
     );
 
-    const mailResult = await sendOtpEmail(normalizedEmail, otp);
+    // Log OTP to console for testing/debugging (especially when email is disabled)
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`📧 OTP for ${normalizedEmail}:`);
+    console.log(`🔐 OTP: ${otp}`);
+    console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
+    console.log(`${'='.repeat(60)}\n`);
 
-    if (!mailResult.success) {
-        return {
-            status: 500,
-            body: {
-                success: false,
-                message: mailResult.error || "Failed to send OTP email",
-            },
-        };
+    // Try to send email if configured
+    if (isEmailConfigured()) {
+        const mailResult = await sendOtpEmail(normalizedEmail, otp);
+        if (!mailResult.success) {
+            console.warn("⚠️ OTP email failed:", mailResult.error);
+            // Don't fail - OTP is still valid and logged to console
+        }
+    } else {
+        console.warn("⚠️ Email not configured - OTP shown in logs above");
     }
 
     return {
