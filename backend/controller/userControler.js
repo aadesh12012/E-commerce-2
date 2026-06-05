@@ -52,24 +52,28 @@ const createUser = async (req, res) => {
             });
         }
 
-        // OTP verification is optional (if OTP is provided, verify it)
-        let normalizedEmail = normalizeEmail(email);
-        
-        if (otp) {
-            const otpCheck = await verifyRegistrationOtp(
-                email,
-                otp,
-                PURPOSE.USER_REGISTER
-            );
-
-            if (!otpCheck.valid) {
-                return res.status(400).json({
-                    success: false,
-                    message: otpCheck.message,
-                });
-            }
-            normalizedEmail = otpCheck.email;
+        // OTP verification is required
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: "OTP is required. Please send OTP to your email first.",
+            });
         }
+
+        const otpCheck = await verifyRegistrationOtp(
+            email,
+            otp,
+            PURPOSE.USER_REGISTER
+        );
+
+        if (!otpCheck.valid) {
+            return res.status(400).json({
+                success: false,
+                message: otpCheck.message,
+            });
+        }
+
+        const normalizedEmail = otpCheck.email;
 
         let existingUser = await UserModel.findOne({ email: normalizedEmail });
 
@@ -89,10 +93,8 @@ const createUser = async (req, res) => {
             role: role || "user",
         });
 
-        // Clear OTP if it was used
-        if (otp) {
-            await clearRegistrationOtp(normalizedEmail, PURPOSE.USER_REGISTER);
-        }
+        // Clear OTP after successful registration
+        await clearRegistrationOtp(normalizedEmail, PURPOSE.USER_REGISTER);
 
         // Ensure JWT_SECRET is set
         const jwtSecret = process.env.JWT_SECRET;

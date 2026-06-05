@@ -52,12 +52,17 @@ function Regester() {
     setError("");
     setSuccess("");
 
-    if (!otpSent) {
-      setError("Please verify your email with OTP first");
+    if (!name || !email || !password || !otp) {
+      setError("Name, email, password, and OTP are required");
       return;
     }
 
-    if (!otp || otp.length !== 6) {
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (otp.length !== 6) {
       setError("Enter the 6-digit OTP from your email");
       return;
     }
@@ -73,7 +78,7 @@ function Regester() {
       if (res.data.success) {
         setSuccess(
           res.data.message ||
-            "Account created! Check your inbox for a welcome email."
+            "Account created successfully!"
         );
         setTimeout(() => navigate("/"), 2000);
       } else {
@@ -92,7 +97,7 @@ function Regester() {
   return (
     <AuthLayout
       title="Create account"
-      subtitle="Verify your email with OTP to join Black Lake."
+      subtitle="Join Black Lake today. OTP verification is required."
     >
       <Card padding="p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -132,7 +137,7 @@ function Regester() {
                 ? "Sending OTP..."
                 : otpSent
                   ? "Resend OTP"
-                  : "Send OTP to email"}
+                  : "Send OTP"}
             </Button>
           </div>
 
@@ -143,7 +148,6 @@ function Regester() {
             onChange={(e) =>
               setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
             }
-            required
             disabled={!otpSent}
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -165,7 +169,7 @@ function Regester() {
             className="w-full"
             disabled={loading || !otpSent}
           >
-            {loading ? "Creating account..." : "Verify & create account"}
+            {loading ? "Creating account..." : "Create account"}
           </Button>
         </form>
 
@@ -178,4 +182,3 @@ function Regester() {
 }
 
 export default Regester;
-
