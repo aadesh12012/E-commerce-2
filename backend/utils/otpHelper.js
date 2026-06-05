@@ -74,21 +74,22 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
         { upsert: true, returnDocument: 'after' }
     );
 
+    // ✅ Always log OTP to console/Render logs for temporary use during development/testing
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`📧 [${purpose.toUpperCase()}] OTP for ${normalizedEmail}:`);
+    console.log(`🔐 OTP: ${otp}`);
+    console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
+    console.log(`${'='.repeat(60)}\n`);
+
     // Send OTP email via Nodemailer
     if (isEmailConfigured()) {
         const mailResult = await sendOtpEmail(normalizedEmail, otp);
         if (!mailResult.success) {
             console.warn("⚠️ OTP email failed:", mailResult.error);
-            // Log OTP to console for testing (especially on Render where Gmail might be blocked)
-            console.log(`\n${'='.repeat(60)}`);
-            console.log(`📧 OTP for ${normalizedEmail}:`);
-            console.log(`🔐 OTP: ${otp}`);
-            console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
-            console.log(`${'='.repeat(60)}\n`);
-            // Don't fail - allow registration to continue
+            // Don't fail - allow registration to continue even if email fails
         }
     } else {
-        console.warn("⚠️ Email not configured");
+        console.warn("⚠️ Email not configured - OTP is only in the console logs above");
     }
 
     return {
