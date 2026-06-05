@@ -33,24 +33,11 @@ function getTransporter() {
 }
 
 /**
- * Verify SMTP connection on server start
+ * Email is disabled temporarily — OTP is logged to console/Render logs instead
  */
 async function verifyEmailConnection() {
-    if (!isEmailConfigured()) {
-        console.warn(
-            "Email: skipped — add EMAIL and EMAIL_PASS to .env to enable"
-        );
-        return false;
-    }
-
-    try {
-        await getTransporter().verify();
-        console.log("✅ Email: Gmail SMTP connection verified");
-        return true;
-    } catch (err) {
-        console.warn("Email: SMTP verification failed —", err.message);
-        return false;
-    }
+    console.log("📋 Email: disabled — OTP will appear in Render server logs");
+    return false;
 }
 
 module.exports = {

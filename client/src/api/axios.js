@@ -9,7 +9,7 @@ console.log("Environment:", import.meta.env.MODE);
 const api = axios.create({
   baseURL,
   withCredentials: true,  // Always send cookies for authentication
-  timeout: 10000,         // 10 second timeout
+  timeout: 30000,         // 30 second timeout
 });
 
 // Request interceptor to add any additional headers

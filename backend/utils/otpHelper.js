@@ -1,8 +1,6 @@
 const OtpModel = require("../models/Otp");
 const bcrypt = require("bcrypt");
 const otpGenerator = require("otp-generator");
-const { sendOtpEmail } = require("../services/emailService");
-const { isEmailConfigured } = require("../config/mailer");
 
 const OTP_EXPIRY_MINUTES = 10;
 const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
@@ -74,23 +72,12 @@ async function sendRegistrationOtp(email, purpose, existsCheck) {
         { upsert: true, returnDocument: 'after' }
     );
 
-    // ✅ Always log OTP to console/Render logs for temporary use during development/testing
+    // ✅ OTP logged to Render console (email disabled temporarily)
     console.log(`\n${'='.repeat(60)}`);
     console.log(`📧 [${purpose.toUpperCase()}] OTP for ${normalizedEmail}:`);
     console.log(`🔐 OTP: ${otp}`);
     console.log(`⏰ Expires in: ${OTP_EXPIRY_MINUTES} minutes`);
     console.log(`${'='.repeat(60)}\n`);
-
-    // Send OTP email via Nodemailer
-    if (isEmailConfigured()) {
-        const mailResult = await sendOtpEmail(normalizedEmail, otp);
-        if (!mailResult.success) {
-            console.warn("⚠️ OTP email failed:", mailResult.error);
-            // Don't fail - allow registration to continue even if email fails
-        }
-    } else {
-        console.warn("⚠️ Email not configured - OTP is only in the console logs above");
-    }
 
     return {
         status: 200,
