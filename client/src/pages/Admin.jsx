@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout, {
   StatCard,
@@ -43,9 +43,7 @@ function Admin() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/users", {
-        withCredentials: true,
-      });
+      const res = await api.get("/admin/users");
       setUsers(res.data);
     } catch (e) {
       console.log(e);
@@ -56,9 +54,7 @@ function Admin() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/products", {
-        withCredentials: true,
-      });
+      const res = await api.get("/admin/products");
       setProducts(res.data);
     } catch (e) {
       console.log(e);
@@ -69,9 +65,7 @@ function Admin() {
   const fetchSellers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/sellers", {
-        withCredentials: true,
-      });
+      const res = await api.get("/admin/sellers");
       setSellers(res.data);
     } catch (e) {
       console.log(e);
@@ -82,9 +76,7 @@ function Admin() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://e-commerce-2-backend-omws.onrender.com/admin/orders", {
-        withCredentials: true,
-      });
+      const res = await api.get("/admin/orders");
       setOrders(res.data);
     } catch (e) {
       console.log(e);
@@ -95,9 +87,7 @@ function Admin() {
   const deleteUser = async (id) => {
     if (!window.confirm("Delete this user?")) return;
     try {
-      await axios.delete(`https://e-commerce-2-backend-omws.onrender.com/admin/user/${id}`, {
-        withCredentials: true,
-      });
+      await api.delete(`/admin/user/${id}`);
       fetchUsers();
     } catch (e) {
       console.log(e);
@@ -107,9 +97,7 @@ function Admin() {
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`https://e-commerce-2-backend-omws.onrender.com/admin/product/${id}`, {
-        withCredentials: true,
-      });
+      await api.delete(`/admin/product/${id}`);
       fetchProducts();
     } catch (e) {
       console.log(e);
@@ -124,10 +112,9 @@ function Admin() {
     }
     if (!window.confirm(`Mark ₹${amount} as paid to ${sellerName}?`)) return;
     try {
-      const res = await axios.post(
-        "https://e-commerce-2-backend-omws.onrender.com/admin/payout-seller",
-        { sellerId, amount: Number(amount) },
-        { withCredentials: true }
+      const res = await api.post(
+        "/admin/payout-seller",
+        { sellerId, amount: Number(amount) }
       );
       if (res.data.success) {
         setPayoutMsg(res.data.message);
@@ -231,12 +218,13 @@ function Admin() {
                       <ListRow key={p._id}>
                         <div className="flex items-center gap-4">
                           <img
-                            src={p.image}
-                            alt={p.name}
-                            className="h-12 w-12 rounded-lg object-cover bg-slate-100"
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                            }}
+                             src={p.image?.startsWith("http") ? p.image : `${import.meta.env.VITE_API_BASE_URL || "https://e-commerce-2-backend-omws.onrender.com"}/uploads/${p.image}`}
+                             alt={p.name}
+                             className="h-12 w-12 rounded-lg object-cover bg-slate-100"
+                             onError={(e) => {
+                               e.target.onerror = null; // prevent infinite loop
+                               e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23f1f5f9'/%3E%3C/svg%3E";
+                             }}
                           />
                           <div>
                             <p className="font-medium text-slate-900">

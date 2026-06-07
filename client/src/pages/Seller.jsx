@@ -431,13 +431,14 @@ function Seller() {
                       src={
                         product.image?.startsWith("http")
                           ? product.image
-                          : `https://e-commerce-2-backend-omws.onrender.com/uploads/${product.image}`
+                          : `${import.meta.env.VITE_API_BASE_URL || "https://e-commerce-2-backend-omws.onrender.com"}/uploads/${product.image}`
                       }
                       alt={product.name}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       onError={(e) => {
+                        e.target.onerror = null; // prevent infinite loop
                         e.target.src =
-                          "https://placehold.co/400x300/e2e8f0/64748b?text=No+image";
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2394a3b8'%3ENo Image%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='28' fill='%23cbd5e1'%3E%F0%9F%96%BC%EF%B8%8F%3C/text%3E%3C/svg%3E";
                       }}
                     />
                   </div>

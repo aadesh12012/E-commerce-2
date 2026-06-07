@@ -11,7 +11,6 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import ProtectedRoute from './components/ProtectedRoute';
-
 function App() {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -24,7 +23,7 @@ function App() {
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/sellerlogin" element={<Sellerlogin />} />
         <Route path="/sellerregister" element={<SellerRegister />} />
-
+        
        
         <Route path="/admin" element={
           <ProtectedRoute roleRequired="admin">

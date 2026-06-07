@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import ShopLayout, { PageHeader } from "../components/ui/ShopLayout";
 import Spinner from "../components/ui/Spinner";
@@ -37,9 +37,8 @@ function Checkout() {
       const user = JSON.parse(userString);
       setName(user.name || "");
 
-      const res = await axios.get(
-        `https://e-commerce-2-backend-omws.onrender.com/cart-total/${user._id}`,
-        { withCredentials: true }
+      const res = await api.get(
+        `/cart-total/${user._id}`
       );
 
       setCart(res.data.cart || []);
@@ -66,10 +65,9 @@ function Checkout() {
       if (!userString) return;
       const user = JSON.parse(userString);
 
-      const orderRes = await axios.post(
-        "https://e-commerce-2-backend-omws.onrender.com/create-order",
-        { amount: total },
-        { withCredentials: true }
+      const orderRes = await api.post(
+        "/create-order",
+        { amount: total }
       );
 
       const order = orderRes.data;
@@ -83,16 +81,15 @@ function Checkout() {
         order_id: order.id,
         handler: async function (response) {
           try {
-            const verifyRes = await axios.post(
-              "https://e-commerce-2-backend-omws.onrender.com/verify-payment",
+            const verifyRes = await api.post(
+              "/verify-payment",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 cartItems: cart,
                 userId: user._id,
-              },
-              { withCredentials: true }
+              }
             );
 
             if (verifyRes.data.success) {

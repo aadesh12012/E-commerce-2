@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
 import ShopLayout, { PageHeader, EmptyState } from "../components/ui/ShopLayout";
 import Spinner from "../components/ui/Spinner";
@@ -21,7 +21,7 @@ function Home() {
       setLoading(true);
       setError(null);
 
-      const response = await axios.get("https://e-commerce-2-backend-omws.onrender.com/products", {
+      const response = await api.get("/products", {
         timeout: 5000,
       });
 
@@ -52,10 +52,9 @@ function Home() {
         return;
       }
 
-      await axios.post(
-        "https://e-commerce-2-backend-omws.onrender.com/addtocart",
-        { userId: user._id, productId },
-        { withCredentials: true }
+      await api.post(
+        "/addtocart",
+        { userId: user._id, productId }
       );
 
       alert("Product added to cart");

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import AuthLayout, { AuthFooterLink, AuthLink } from "../components/ui/AuthLayout";
 import Card from "../components/ui/Card";
@@ -20,10 +20,9 @@ function SellerLogin() {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        "https://e-commerce-2-backend-omws.onrender.com/sellerlogin",
-        { email, password },
-        { withCredentials: true }
+      const res = await api.post(
+        "/sellerlogin",
+        { email, password }
       );
 
       if (res.data.success) {

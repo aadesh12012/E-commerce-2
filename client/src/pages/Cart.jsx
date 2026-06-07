@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { Trash2, ArrowLeft } from "lucide-react";
 import ShopLayout, { PageHeader, EmptyState } from "../components/ui/ShopLayout";
@@ -25,9 +25,8 @@ function Cart() {
         return;
       }
       const user = JSON.parse(userString);
-      const res = await axios.get(
-        `https://e-commerce-2-backend-omws.onrender.com/cart-total/${user._id}`,
-        { withCredentials: true }
+      const res = await api.get(
+        `/cart-total/${user._id}`
       );
       setCart(res.data.cart || []);
       setTotal(res.data.totalAmount || 0);
@@ -43,10 +42,9 @@ function Cart() {
       const userString = localStorage.getItem("user");
       if (!userString) return;
       const user = JSON.parse(userString);
-      await axios.post(
-        "https://e-commerce-2-backend-omws.onrender.com/removeitem",
-        { userId: user._id, cartItemId },
-        { withCredentials: true }
+      await api.post(
+        "/removeitem",
+        { userId: user._id, cartItemId }
       );
       fetchCart();
     } catch (err) {
@@ -104,13 +102,14 @@ function Cart() {
                       src={
                         item.productId.image?.startsWith("http")
                           ? item.productId.image
-                          : `https://e-commerce-2-backend-omws.onrender.com/uploads/${item.productId.image}`
+                          : `${import.meta.env.VITE_API_BASE_URL || "https://e-commerce-2-backend-omws.onrender.com"}/uploads/${item.productId.image}`
                       }
                       alt={item.productId.name}
                       className="h-full w-full object-cover"
                       onError={(e) => {
+                        e.target.onerror = null; // prevent infinite loop
                         e.target.src =
-                          "https://via.placeholder.com/96/f1f5f9/64748b?text=--";
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2394a3b8'%3ENo Image%3C/text%3E%3C/svg%3E";
                       }}
                     />
                   </div>
