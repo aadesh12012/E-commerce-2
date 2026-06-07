@@ -73,7 +73,7 @@ function Checkout() {
       const order = orderRes.data;
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_xxxxxxxxx",
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: order.amount,
         currency: "INR",
         name: "Black Lake Store",

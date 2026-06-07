@@ -5,16 +5,16 @@ const User = require("../models/User");
 const Product = require("../models/product");
 
 // Validate Razorpay credentials
-if (!process.env.KEY_ID || process.env.KEY_ID === "rzp_test_xxxxxxxxx") {
-    console.warn("⚠️ WARNING: Razorpay KEY_ID is not set or using placeholder value!");
+if (!process.env.KEY_ID) {
+    console.warn("⚠️ WARNING: Razorpay KEY_ID is not set!");
 }
-if (!process.env.KEY_SECRET || process.env.KEY_SECRET === "xxxxxxxxxxxxx") {
-    console.warn("⚠️ WARNING: Razorpay KEY_SECRET is not set or using placeholder value!");
+if (!process.env.KEY_SECRET) {
+    console.warn("⚠️ WARNING: Razorpay KEY_SECRET is not set!");
 }
 
 const razorpay = new Razorpay({
-    key_id: process.env.KEY_ID || "rzp_test_xxxxxxxxx",
-    key_secret: process.env.KEY_SECRET || "xxxxxxxxxxxxx"
+    key_id: process.env.KEY_ID,
+    key_secret: process.env.KEY_SECRET
 });
 
 const createOrder = async (req, res) => {
@@ -63,7 +63,13 @@ const verifyPayment = async (req, res) => {
         } = req.body;
 
         // Verify the signature
-        const key_secret = process.env.KEY_SECRET || "xxxxxxxxxxxxx";
+        const key_secret = process.env.KEY_SECRET;
+        if (!key_secret) {
+            return res.status(500).json({
+                success: false,
+                message: "Razorpay KEY_SECRET is not configured on the server."
+            });
+        }
         const body = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto
             .createHmac("sha256", key_secret)
