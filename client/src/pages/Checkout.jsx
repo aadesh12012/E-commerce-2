@@ -107,6 +107,9 @@ function Checkout() {
             }
           } catch (verifyErr) {
             console.error("Verification error:", verifyErr);
+            if (verifyErr.response?.data) {
+              console.error("Verification error details:", verifyErr.response.data);
+            }
             setError(
               verifyErr.response?.data?.message ||
                 "Payment verification failed. Please contact support."
